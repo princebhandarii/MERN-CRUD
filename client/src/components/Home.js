@@ -6,11 +6,11 @@ import swal from "sweetalert";
 export default function Home() {
   const [users, setUsers] = useState([]);
 
+  const host = "http://localhost:8000";
+
   const deleteUser = async (userId) => {
     try {
-      await axios.delete(
-        `https://mern-crud-a16a.onrender.com/api/delete/${userId}`
-      );
+      await axios.delete(`${host}/api/delete/${userId}`);
       setUsers(users.filter((user) => user._id !== userId)); // Update the state after deletion
       swal("Success!", "User Delete Successfully", "success");
     } catch (error) {
@@ -21,12 +21,17 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(
-          "https://mern-crud-a16a.onrender.com/api/getall"
-        );
+        const res = await axios.get(`${host}/api/getall`, {
+          headers: {
+            "Cache-Control": "no-cache",
+          },
+        });
+
         setUsers(res.data);
       } catch (error) {
         console.error("Error fetching data:", error);
+        // Set users to an empty array if there's an error
+        setUsers([]);
       }
     };
 
@@ -43,30 +48,31 @@ export default function Home() {
         </button>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-5">
-        {/* Render user cards */}
-        {users.map((user) => (
-          <div key={user._id} className="card w-72 bg-base-100 shadow-xl">
-            <div className="card-body">
-              <p className="">Name:{user.name}</p>
-              <p>Email: {user.Email}</p>
-              <p>Age: {user.age}</p>
-              <div className="card-actions justify-end">
-                <button className="btn btn-warning mr-2">
-                  <Link
-                    to={`/edit/${user._id}`}
-                    className="fa-solid fa-pen-nib"
-                  ></Link>
-                </button>
-                <button
-                  className="btn btn-danger"
-                  onClick={() => deleteUser(user._id)}
-                >
-                  <i className="fa-solid fa-trash"></i>
-                </button>
+        {/* Render user cards only if users is an array */}
+        {Array.isArray(users) &&
+          users.map((user) => (
+            <div key={user._id} className="card w-72 bg-base-100 shadow-xl">
+              <div className="card-body">
+                <p className="">Name:{user.name}</p>
+                <p>Email: {user.Email}</p>
+                <p>Age: {user.age}</p>
+                <div className="card-actions justify-end">
+                  <button className="btn btn-warning mr-2">
+                    <Link
+                      to={`/edit/${user._id}`}
+                      className="fa-solid fa-pen-nib"
+                    ></Link>
+                  </button>
+                  <button
+                    className="btn btn-danger"
+                    onClick={() => deleteUser(user._id)}
+                  >
+                    <i className="fa-solid fa-trash"></i>
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
       </div>
     </div>
   );
