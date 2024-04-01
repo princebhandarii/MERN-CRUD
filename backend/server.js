@@ -18,12 +18,12 @@ dotenv.config();
 
 connectTOMongo();
 
+app.use("/api", routes);
 // Use join to concatenate paths
 app.use(express.static(join(__dirname, "../client/build")));
 app.get("*", function (req, res) {
   res.sendFile(join(__dirname, "../client/build/index.html"));
 });
-app.use("/api", routes);
 
 app.listen(process.env.PORT, () => {
   console.log("server started");
